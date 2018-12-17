@@ -60,6 +60,29 @@ EXT_RETURN tls_construct_ctos_server_name(SSL *s, WPACKET *pkt,
 }
 
 /* Push a Max Fragment Len extension into ClientHello */
+EXT_RETURN tls_construct_ctos_micro_fragment(SSL *s, WPACKET *pkt,
+                                             unsigned int context, X509 *x,
+                                             size_t chainidx)
+{
+    if (s->ext.micro_fragment == TLSEXT_micro_fragment_disabled)
+        return EXT_RETURN_NOT_SENT;
+
+    if (!WPACKET_put_bytes_u16(pkt, TLSEXT_TYPE_micro_fragment)
+        || !WPACKET_put_bytes_u16(pkt, 0)) {
+        /* /\* Sub-packet for Max Fragment Length extension (1 byte) *\/  */
+        /* || !WPACKET_start_sub_packet_u16(pkt) */
+        /* || !WPACKET_put_bytes_u8(pkt, s->ext.max_fragment_len_mode) */
+        /* || !WPACKET_close(pkt)) { */
+        /* SSLfatal(s, SSL_AD_INTERNAL_ERROR, */
+        /*          SSL_F_TLS_CONSTRUCT_CTOS_MICROFRAGMENT, ERR_R_INTERNAL_ERROR); */
+        return EXT_RETURN_FAIL;
+    }
+
+    return EXT_RETURN_SENT;
+
+}
+
+/* Push a Max Fragment Len extension into ClientHello */
 EXT_RETURN tls_construct_ctos_maxfragmentlen(SSL *s, WPACKET *pkt,
                                              unsigned int context, X509 *x,
                                              size_t chainidx)
@@ -1280,6 +1303,33 @@ int tls_parse_stoc_renegotiate(SSL *s, PACKET *pkt, unsigned int context,
     return 1;
 }
 
+/* Parse the server's micro fragment packet */
+int tls_parse_stoc_micro_fragment(SSL *s, PACKET *pkt, unsigned int context,
+                                  X509 *x, size_t chainidx)
+{
+    unsigned int value;
+
+    if (PACKET_remaining(pkt) != 1 || !PACKET_get_1(pkt, &value)) {
+        /* SSLfatal(s, SSL_AD_DECODE_ERROR, SSL_F_TLS_PARSE_STOC_MICRO_FRAGMENT, */
+        /*          SSL_R_BAD_EXTENSION); */
+        return 0;
+    }
+
+    if (value < 1 || value > 8) {
+        /* SSLfatal(s, SSL_AD_ILLEGAL_PARAMETER, */
+        /*          SSL_F_TLS_PARSE_STOC_MICRO_FRAGMENT, */
+        /*          SSL_R_BAD_EXTENSION); */
+        return 0;
+    }
+
+    /*
+     * Maximum Fragment Length Negotiation succeeded.
+     * The negotiated Maximum Fragment Length is binding now.
+     */
+    s->session->ext.micro_fragment = value;
+
+    return 1;
+}
 /* Parse the server's max fragment len extension packet */
 int tls_parse_stoc_maxfragmentlen(SSL *s, PACKET *pkt, unsigned int context,
                                   X509 *x, size_t chainidx)

@@ -1996,6 +1996,7 @@ __owur size_t SSL_SESSION_get_master_key(const SSL_SESSION *sess,
 __owur int SSL_SESSION_set1_master_key(SSL_SESSION *sess,
                                        const unsigned char *in, size_t len);
 uint8_t SSL_SESSION_get_max_fragment_length(const SSL_SESSION *sess);
+uint8_t SSL_SESSION_get_micro_fragment(const SSL_SESSION *session);
 
 #define SSL_get_ex_new_index(l, p, newf, dupf, freef) \
     CRYPTO_get_ex_new_index(CRYPTO_EX_INDEX_SSL, l, p, newf, dupf, freef)

@@ -748,6 +748,7 @@ SSL *SSL_new(SSL_CTX *ctx)
     s->quiet_shutdown = ctx->quiet_shutdown;
 
     s->ext.max_fragment_len_mode = ctx->ext.max_fragment_len_mode;
+    s->ext.micro_fragment = ctx->ext.micro_fragment;
     s->max_send_fragment = ctx->max_send_fragment;
     s->split_send_fragment = ctx->split_send_fragment;
     s->max_pipelines = ctx->max_pipelines;
@@ -5434,6 +5435,9 @@ __owur unsigned int ssl_get_max_send_fragment(const SSL *ssl)
     if (ssl->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(ssl->session))
         return GET_MAX_FRAGMENT_LENGTH(ssl->session);
 
+    if (ssl->session != NULL && ssl->session->ext.micro_fragment >= 1 && ssl->session->ext.micro_fragment <= 8)
+        return (1U << ssl->session->ext.micro_fragment) - 1;
+
     /* return current SSL connection setting */
     return ssl->max_send_fragment;
 }
@@ -5444,6 +5448,9 @@ __owur unsigned int ssl_get_split_send_fragment(const SSL *ssl)
     if (ssl->session != NULL && USE_MAX_FRAGMENT_LENGTH_EXT(ssl->session)
         && ssl->split_send_fragment > GET_MAX_FRAGMENT_LENGTH(ssl->session))
         return GET_MAX_FRAGMENT_LENGTH(ssl->session);
+
+    if (ssl->session != NULL && ssl->session->ext.micro_fragment >= 1 && ssl->session->ext.micro_fragment <= 8)
+        return (1U << ssl->session->ext.micro_fragment) - 1;
 
     /* else limit |split_send_fragment| to current |max_send_fragment| */
     if (ssl->split_send_fragment > ssl->max_send_fragment)

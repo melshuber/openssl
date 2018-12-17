@@ -7,6 +7,31 @@
  https://github.com/openssl/openssl/commits/ and pick the appropriate
  release branch.
 
+ Changes between 1.1.1a and 1.1.1tds [17 Dec 2018]
+  *) Add support for micro fragments.
+
+     Client offers this capaibility, by including an the ufragment
+     extension in the server hallo (id 0xff00, no data).
+
+     Server answers with the same extension, which includes on
+     byte. From there on the client transmits all data framented with
+     size indicated by the value in this byte.
+
+     Valid values are:
+       1: 1 byte
+       2: 3 byte
+       3: 7 byte
+       4: 15 byte
+       5: 31 byte
+       6: 63 byte
+       7: 127 byte
+       8: 255 byte
+
+     This allows very resource constraint servers to comunicate by
+     allocating minimal rx buffers.
+
+     Note: the Client-Hallo can still be sent in larger records.
+
  Changes between 1.1.1 and 1.1.1a [20 Nov 2018]
 
   *) Timing vulnerability in DSA signature generation

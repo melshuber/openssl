@@ -2775,3 +2775,32 @@ uint8_t SSL_SESSION_get_max_fragment_length(const SSL_SESSION *session)
 {
     return session->ext.max_fragment_len_mode;
 }
+
+int SSL_CTX_set_tlsext_micro_fragment(SSL_CTX *ctx, uint8_t mode)
+{
+    if (mode > TLSEXT_micro_fragment_enabled) {
+        /* SSLerr(SSL_F_SSL_CTX_SET_TLSEXT_MICRO_FRAGMENT, */
+        /*        SSL_R_SSL3_EXT_INVALID_MICRO_FRAGMENT); */
+        return 0;
+    }
+
+    ctx->ext.micro_fragment = mode;
+    return 1;
+}
+
+int SSL_set_tlsext_micro_fragment(SSL *ssl, uint8_t mode)
+{
+    if (mode > TLSEXT_micro_fragment_enabled) {
+        /* SSLerr(SSL_F_SSL_SET_TLSEXT_MICRO_FRAGMENT, */
+        /*        SSL_R_SSL3_EXT_INVALID_MICRO_FRAGMENT); */
+        return 0;
+    }
+
+    ssl->ext.micro_fragment = mode;
+    return 1;
+}
+
+uint8_t SSL_SESSION_get_micro_fragment(const SSL_SESSION *session)
+{
+    return session->ext.micro_fragment;
+}

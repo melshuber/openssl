@@ -55,6 +55,7 @@ static int init_srtp(SSL *s, unsigned int context);
 static int final_sig_algs(SSL *s, unsigned int context, int sent);
 static int final_early_data(SSL *s, unsigned int context, int sent);
 static int final_maxfragmentlen(SSL *s, unsigned int context, int sent);
+static int final_micro_fragment(SSL *s, unsigned int context, int sent);
 static int init_post_handshake_auth(SSL *s, unsigned int context);
 
 /* Structure to define a built-in extension */
@@ -135,6 +136,13 @@ static const EXTENSION_DEFINITION ext_defs[] = {
         tls_parse_ctos_server_name, tls_parse_stoc_server_name,
         tls_construct_stoc_server_name, tls_construct_ctos_server_name,
         final_server_name
+    },
+    {
+        TLSEXT_TYPE_micro_fragment,
+        SSL_EXT_CLIENT_HELLO | SSL_EXT_TLS1_3_ENCRYPTED_EXTENSIONS,
+        NULL, tls_parse_ctos_micro_fragment, tls_parse_stoc_micro_fragment,
+        tls_construct_stoc_micro_fragment, tls_construct_ctos_micro_fragment,
+        NULL,
     },
     {
         TLSEXT_TYPE_max_fragment_length,
@@ -1657,6 +1665,12 @@ static int final_early_data(SSL *s, unsigned int context, int sent)
         }
     }
 
+    return 1;
+}
+
+static int final_micro_fragment(SSL *s, unsigned int context, int sent)
+{
+    /* ignored */
     return 1;
 }
 

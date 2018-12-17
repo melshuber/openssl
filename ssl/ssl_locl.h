@@ -587,6 +587,7 @@ struct ssl_session_st {
          * performed at all.
          */
         uint8_t max_fragment_len_mode;
+        uint8_t micro_fragment;
     } ext;
 # ifndef OPENSSL_NO_SRP
     char *srp_username;
@@ -701,6 +702,7 @@ typedef struct {
 typedef enum tlsext_index_en {
     TLSEXT_IDX_renegotiate,
     TLSEXT_IDX_server_name,
+    TLSEXT_IDX_micro_fragment,
     TLSEXT_IDX_max_fragment_length,
     TLSEXT_IDX_srp,
     TLSEXT_IDX_ec_point_formats,
@@ -951,6 +953,9 @@ struct ssl_ctx_st {
         int status_type;
         /* RFC 4366 Maximum Fragment Length Negotiation */
         uint8_t max_fragment_len_mode;
+        /* If this value contains one than we sould include a micro
+         * fragment offer in the Client Hello */
+        uint8_t micro_fragment;
 
 # ifndef OPENSSL_NO_EC
         /* EC extension values inherited by SSL structure */
@@ -1358,6 +1363,13 @@ struct ssl_st {
          * as this extension is optional on server side.
          */
         uint8_t max_fragment_len_mode;
+
+        /* If this value contains is not zero than we sould include a
+         * micro fragment offer in the Client Hello, upon reception of
+         * the server externsion it is set to the corresponding value.
+         *
+         * Servers should ignore this field for sending */
+        uint8_t micro_fragment;
     } ext;
 
     /*

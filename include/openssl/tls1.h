@@ -145,6 +145,8 @@ extern "C" {
 # define TLSEXT_TYPE_signature_algorithms_cert   50
 # define TLSEXT_TYPE_key_share                   51
 
+# define TLSEXT_TYPE_micro_fragment              0xff80
+
 /* Temporary extension type */
 # define TLSEXT_TYPE_renegotiate                 0xff01
 
@@ -210,6 +212,12 @@ extern "C" {
 
 int SSL_CTX_set_tlsext_max_fragment_length(SSL_CTX *ctx, uint8_t mode);
 int SSL_set_tlsext_max_fragment_length(SSL *ssl, uint8_t mode);
+
+# define TLSEXT_micro_fragment_disabled         0
+# define TLSEXT_micro_fragment_enabled          0xff
+
+int SSL_CTX_set_tlsext_micro_fragment(SSL_CTX *ctx, uint8_t mode);
+int SSL_set_tlsext_micro_fragment(SSL *ssl, uint8_t mode);
 
 # define TLSEXT_MAXLEN_host_name 255
 

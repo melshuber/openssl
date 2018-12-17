@@ -172,6 +172,13 @@ int tls_parse_ctos_server_name(SSL *s, PACKET *pkt, unsigned int context,
     return 1;
 }
 
+int tls_parse_ctos_micro_fragment(SSL *s, PACKET *pkt, unsigned int context,
+                                  X509 *x, size_t chainidx)
+{
+    /* not implemented for unconstrainted servers, we silently ignore it */
+    return 1;
+}
+
 int tls_parse_ctos_maxfragmentlen(SSL *s, PACKET *pkt, unsigned int context,
                                   X509 *x, size_t chainidx)
 {
@@ -1366,6 +1373,15 @@ EXT_RETURN tls_construct_stoc_maxfragmentlen(SSL *s, WPACKET *pkt,
     }
 
     return EXT_RETURN_SENT;
+}
+
+/* Add/include the server's max fragment len extension into ServerHello */
+EXT_RETURN tls_construct_stoc_micro_fragment(SSL *s, WPACKET *pkt,
+                                             unsigned int context, X509 *x,
+                                             size_t chainidx)
+{
+    /* not implemented for unconstraint servers */
+    return EXT_RETURN_NOT_SENT;
 }
 
 #ifndef OPENSSL_NO_EC
